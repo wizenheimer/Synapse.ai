@@ -28,6 +28,14 @@ class Team(models.Model):
         return self.title
 
 
+class Secret(models.Model):
+    key = models.CharField(max_length=256)
+    value = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.id
+
+
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True, db_index=True)
@@ -39,6 +47,9 @@ class User(AbstractUser):
     updated_at = models.DateTimeField(auto_now=True)
     # team
     teams = models.ManyToManyField(Team, through="TeamAssignment")
+    secrets = models.ManyToManyField(Secret, through="SecretAssignment")
+    schemas = models.ManyToManyField(Schema, through="SchemaAssignment")
+    snippets = models.ManyToManyField(Snippet, through="SnippetAssignment")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -85,4 +96,17 @@ class SchemaAssignment(models.Model):
     begin_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"snippet:{str(self.schema.id)} user:{str(self.user.id)}"
+        return f"schema:{str(self.schema.id)} user:{str(self.user.id)}"
+
+
+class SecretAssignment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    secret = models.ForeignKey(Secret, on_delete=models.CASCADE)
+    # permissions
+    can_view_secret = models.BooleanField(default=True)
+    can_edit_secret = models.BooleanField(default=True)
+    # join date
+    begin_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"secret:{str(self.secret.id)} user:{str(self.user.id)}"
