@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from random import choice
+from string import ascii_uppercase
 
 from .managers import UserManager
 
@@ -7,7 +9,18 @@ from .managers import UserManager
 class Team(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    token = models.CharField(max_length=255, unique=True, db_index=True)
+    # token for creating invites
+    token = models.CharField(max_length=255, db_index=True, null=True, blank=True)
+
+    def update_token(self):
+        # update token for the given model
+        self.token = "".join(choice(ascii_uppercase) for i in range(16))
+        return self.token
+
+    def save(self, *args, **kwargs):
+        # create a new token
+        token = self.update_token()
+        super(Team, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.title
