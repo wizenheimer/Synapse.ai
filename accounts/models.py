@@ -3,6 +3,16 @@ from django.contrib.auth.models import AbstractUser
 
 from .managers import UserManager
 
+
+class Team(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    token = models.CharField(max_length=255, unique=True, db_index=True)
+
+    def __str__(self):
+        return self.title
+
+
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True, db_index=True)
@@ -12,6 +22,8 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # team
+    teams = models.ManyToManyField(Team, through="TeamAssignment")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -20,3 +32,16 @@ class User(AbstractUser):
 
     def __str__(self):
         return str(self.email)
+
+
+class TeamAssignment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    # permissions
+    can_add_teammate = models.BooleanField(default=True)
+    can_remove_teammate = models.BooleanField(default=True)
+    # join date
+    begin_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"team:{str(self.team.id)} user:{str(self.user.id)}"
