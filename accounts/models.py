@@ -46,10 +46,16 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     # team
-    teams = models.ManyToManyField(Team, through="TeamAssignment")
-    secrets = models.ManyToManyField(Secret, through="SecretAssignment")
-    schemas = models.ManyToManyField(Schema, through="SchemaAssignment")
-    snippets = models.ManyToManyField(Snippet, through="SnippetAssignment")
+    teams = models.ManyToManyField(Team, through="TeamAssignment", related_name="users")
+    secrets = models.ManyToManyField(
+        Secret, through="SecretAssignment", related_name="users"
+    )
+    schemas = models.ManyToManyField(
+        Schema, through="SchemaAssignment", related_name="users"
+    )
+    snippets = models.ManyToManyField(
+        Snippet, through="SnippetAssignment", related_name="users"
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
