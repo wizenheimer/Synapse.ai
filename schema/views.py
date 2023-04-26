@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import DataSource, Schema, Table, Column
+from .util import SQLDatabase, SQLAlchemyError
 from .serializers import (
     DataSourceSerializer,
     DataSourceProfileSerializer,
@@ -20,7 +21,7 @@ class DataSourceViewset(viewsets.ModelViewSet):
         datasource = DataSource.objects.get(pk=pk)
         serializer = URISerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        # to do : validate it by checking if the data query is supported
+        # NOTE : input components and buil url on client side
         datasource.uri = serializer.data["uri"]
         datasource.save()
         return Response({"status": "URI saved successfully."})
@@ -29,11 +30,13 @@ class DataSourceViewset(viewsets.ModelViewSet):
     def test_uri(self, request, pk=None):
         datasource = DataSource.objects.get(pk=pk)
         # to do : test the current uri
-        can_connect = True
-        if can_connect:
-            return Response({"status": "database connection established."})
-        else:
+        database = SQLDatabase.from_uri(datasource.uri)
+        try:
+            database.get_table_names()
+        except Exception as e:
             return Response({"status": "database connection couldn't be established."})
+        finally:
+            return Response({"status": "database connection established."})
 
     @action(detail=True, methods=["get"])
     def get_representation(self, request, pk=None):

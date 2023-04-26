@@ -12,7 +12,7 @@ class DataSource(models.Model):
     # display name for the database
     name = models.CharField(max_length=250)
     # uri in sqlalchemy compliant format
-    uri = models.URLField()
+    uri = models.CharField(max_length=256)
     category = models.CharField(
         choices=DATASOURCE_OPTIONS, max_length=255, default="Undefined"
     )

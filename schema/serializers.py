@@ -1,11 +1,19 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from .models import DataSource, Schema, Table, Column
+from .util import SQLDatabase
 
 
 class DataSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataSource
         fields = "__all__"
+
+    def validate(self, attrs):
+        uri = attrs.get("uri", None)
+        database = SQLDatabase.from_uri(uri)
+        database.get_table_names()
+        return super().validate(attrs)
 
 
 class URISerializer(serializers.Serializer):
