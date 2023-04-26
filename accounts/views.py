@@ -1,6 +1,11 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework.views import APIView
+from rest_framework.permissions import (
+    IsAdminUser,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     ListCreateAPIView,
@@ -41,11 +46,15 @@ from .serializers import (
 
 from .models import User, Team
 from .serializers import ProfileSerializer, TeamSerializer
+from .permissions import IsMember
 
 
 class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = ProfileSerializer
+    # permission_classes = [
+    #     IsAdminUser,
+    # ]
 
     @action(detail=False, methods=["get"])
     def me(self, request):
@@ -59,6 +68,7 @@ class ProfileViewSet(viewsets.ReadOnlyModelViewSet):
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+    # permission_classes = [IsAdminUser, IsMember]
 
     @action(detail=True, methods=["get"])
     def get_token(self, request, pk=None):
