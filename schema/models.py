@@ -30,7 +30,11 @@ class Schema(models.Model):
     # high level schema
     name = models.CharField(max_length=250)
     datasource = models.ForeignKey(
-        DataSource, null=True, blank=True, on_delete=models.DO_NOTHING
+        DataSource,
+        null=True,
+        blank=True,
+        on_delete=models.DO_NOTHING,
+        related_name="schema",
     )
 
     def __str__(self):
@@ -40,7 +44,7 @@ class Schema(models.Model):
 class Table(models.Model):
     # table schema
     name = models.CharField(max_length=250)
-    schema = models.ForeignKey(Schema, on_delete=models.CASCADE)
+    schema = models.ForeignKey(Schema, on_delete=models.CASCADE, related_name="table")
 
     def __str__(self):
         return self.name
@@ -50,7 +54,7 @@ class Column(models.Model):
     # column schema
     name = models.CharField(max_length=250)
     data_type = models.CharField(max_length=250)
-    table = models.ForeignKey(Table, on_delete=models.CASCADE)
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name="column")
 
     def __str__(self):
         return self.name
